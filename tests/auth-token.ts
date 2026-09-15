@@ -25,3 +25,8 @@ export async function getAccessToken(scope?: string): Promise<string | null> {
   const data = await response.json();
   return data.access_token as string;
 }
+
+export function tokenScopes(token: string): string[] {
+  const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+  return (payload.permissions ?? payload.scope?.split(' ')) ?? [];
+}

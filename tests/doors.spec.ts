@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { getAccessToken } from './auth-token';
+import { getAccessToken, tokenScopes } from './auth-token';
 
 test('GET /doors returns an array without auth', async ({ request }) => {
   const response = await request.get('/doors');
@@ -62,6 +62,11 @@ test.describe('with a write:doors token', () => {
 test('POST /doors with a token missing write:doors is forbidden', async ({ request }) => {
   const token = await getAccessToken('write:events');
   test.skip(!token, 'AUTH0 client is not configured with a narrowable write:events scope');
+  test.skip(
+    !!token && tokenScopes(token).includes('write:doors'),
+    'this Auth0 tenant does not down-scope client-credentials tokens to the requested scope, ' +
+      'so a write:events-only token cannot be obtained from this client'
+  );
 
   const response = await request.post('/doors', {
     headers: { Authorization: `Bearer ${token}` },
