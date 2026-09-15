@@ -1,4 +1,4 @@
-export async function getAccessToken(): Promise<string | null> {
+export async function getAccessToken(scope?: string): Promise<string | null> {
   const { AUTH0_DOMAIN, AUTH0_AUDIENCE, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET } =
     process.env;
 
@@ -14,11 +14,12 @@ export async function getAccessToken(): Promise<string | null> {
       client_id: AUTH0_CLIENT_ID,
       client_secret: AUTH0_CLIENT_SECRET,
       audience: AUTH0_AUDIENCE,
+      ...(scope ? { scope } : {}),
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Auth0 token request failed: ${response.status}`);
+    return null;
   }
 
   const data = await response.json();
